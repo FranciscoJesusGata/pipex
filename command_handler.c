@@ -1,34 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   command_handler.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/16 10:45:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/06/25 17:53:29 by fgata-va         ###   ########.fr       */
+/*   Created: 2021/06/25 17:25:24 by fgata-va          #+#    #+#             */
+/*   Updated: 2021/06/25 17:52:47 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include <sys/wait.h>
-# include "Libft/libft.h"
-# include <errno.h>
+#include "pipex.h"
 
-typedef struct s_command
+t_command	*new_command(char *cmd)
 {
-	char			*binary;
-	char			**args;
-	char			*path;
-	int				input;
-	int				output;
-	struct s_command	*next;
-}				t_command;
+	t_command	*new;
 
-t_command	*new_command(char *cmd);
+	if (!cmd)
+		return (NULL);
+	new = (t_command *)malloc(sizeof(t_command));
+	if (!new)
+		return (NULL);
+	new->args = ft_split(cmd, ' ');
+	new->binary = *new->args;
+	new->path = NULL;
+	new->input = -1;
+	new->output = -1;
+	new->next = NULL;
+	return (new);
+}
 
-#endif

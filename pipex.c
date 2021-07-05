@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/06/23 20:00:33 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/07/05 13:22:33 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,18 @@ void	free_matrix(char **matrix)
 
 void	program_error(char *name, int code, char *message)
 {
-	ft_putstr_fd("pipex: ", 1);
-	ft_putstr_fd(name, 1);
-	write(1, ": ", 2);
+	ft_putstr_fd("pipex: ", 3);
+	ft_putstr_fd(name, 3);
+	write(3, ": ", 2);
 	if (!message)
-		ft_putstr_fd(strerror(errno), 1);
+		ft_putstr_fd(strerror(errno), 3);
 	else
-		ft_putstr_fd(message, 1);
-	write(1, "\n", 1);
+		ft_putstr_fd(message, 3);
+	write(1, "\n", 3);
 	exit (code);
 }
 
-char	*get_binary_path(char *path, char *binary)
+char	*path_concat(char *path, char *binary)
 {
 	int		len;
 	int		bin_len;
@@ -65,74 +65,134 @@ char	*get_binary_path(char *path, char *binary)
 
 }
 
-void	exec_binary(char **path, char **cmd, char **envp)
+char	*get_binary_path(char **path, char *binary)
 {
 	int		i;
-	int		found;
 	char	*exec_path;
+	int		found;
 
 	i = 0;
 	found = -1;
 	while (found == -1 && path[i])
 	{
-		exec_path = get_binary_path(path[i], cmd[0]);
+		exec_path = path_concat(path[i], binary);
 		if (!exec_path)
-			program_error(cmd[0], -1, NULL);
+			program_error(binary, -1, NULL);
 		printf("%s\n", exec_path);
 		found = access(exec_path, 1);
 		if (found < 0)
 			free(exec_path);
 		i++;
 	}
-	if (found == 0)
-		execve(exec_path, cmd, envp);
-	else
-		program_error(cmd[0], 127, "command not found");
+	return (exec_path);
+
 }
 
-int	ft_executor(char **cmd, char **path, char **envp)
+void	exec_binary(char **path, char **cmd, char **envp)
 {
-	int		pid;
-	int		status;
+	int		i;
+	char	*exec_path;
 
-	status = 0;
-	pid = fork();
-	if (pid == 0)
-		exec_binary(path, cmd, envp);
+	i = 0;
+	exec_path = get_binary_path(path, cmd[0]);
+	if (exec_path)
+		execve(exec_path, cmd, envp);
 	else
 	{
-		pid = waitpid(pid, &status, WNOHANG);
-		while (!pid)
+		write(1, 0, 1);
+		program_error(cmd[0], 127, "command not found");
+	}
+}
+
+int	ft_executor(t_command *commands, char **path, char **envp)
+{
+	int			pid;
+	int			status;
+	t_command	*current;
+
+	status = 0;
+	current = commands;
+	while (current)
+	{
+		pid = fork();
+		if (pid == 0)
+			exec_binary(path, current->args, envp);
+		else
+		{
 			pid = waitpid(pid, &status, WNOHANG);
+			while (!pid)
+				pid = waitpid(pid, &status, WNOHANG);
+		}
+		current = commands->next;
 	}
 	return (((status) & 0xff00) >> 8);
 }
 
-void	open_file(char *filename, int fd, int io)
+void	redirect(char *filename, int fd, int io)
 {
-
 	if (fd < 0 || (dup2(fd, io) < 0))
 		program_error(filename, 1, NULL);
 }
 
+void	delete_cmd_lst(t_command *commands)
+{
+	t_command *nxt;
+
+	while (commands)
+	{
+		nxt = commands->next;
+		if (commands->input >= 0)
+			close(commands->input);
+		if (commands->output >= 0)
+			close(commands->output);
+		free_matrix(commands->args);
+		if (commands->path)
+			free(commands->path);
+		free(commands);
+		commands = nxt;
+	}
+}
+
+void	open_files(t_command *commands, char *infile, char *outfile)
+{
+	int	input;
+	int	output;
+	t_command	*current;
+
+	input = open(infile, O_RDONLY);
+	redirect(infile, input, 0);
+	output = open(outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	redirect(infile, output, 1);
+	current = commands;
+	current->input = input;
+	while (current->next)
+		current = current->next;
+	current->output = output;
+}
+
+void	finish_program(t_command *commands, char **path)
+{
+	delete_cmd_lst(commands);
+	free_matrix(path);
+}
+
 int	main(int argc, char **argv, char *envp[])
 {
-	int	i;
-	char	**cmd1;
-	char	**path;
-	int		status;
+	int			i;
+	t_command	*commands;
+	char		**path;
+	int			status;
 
 	i = 0;
 	status = 0;
-	if (argc > 3)
+	if (argc == 5)
 	{
-		open_file(argv[1], open(argv[1], O_RDONLY), 0);
-		open_file(argv[3], open(argv[3], O_CREAT | O_WRONLY | O_TRUNC, 0622), 1);
 		path = get_path(envp);
-		cmd1 = ft_split(argv[2], ' ');
-		status = ft_executor(cmd1, path, envp);
-		free_matrix(path);
-		free_matrix(cmd1);
+		commands = new_command(argv[2]);
+		commands->next = new_command(argv[3]);
+		open_files(commands, argv[1], argv[argc - 1]);
+		status = ft_executor(commands, path, envp);
+		finish_program(commands, path);
 	}
 	//system("leaks pipex");
 	return (status);
