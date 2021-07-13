@@ -6,7 +6,7 @@
 #    By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/23 15:56:31 by fgata-va          #+#    #+#              #
-#    Updated: 2021/06/23 16:27:18 by fgata-va         ###   ########.fr        #
+#    Updated: 2021/07/09 10:31:42 by fgata-va         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = gcc
 
 CFLAGS := -Wall -Werror -Wextra -I. -g
 
-SRC = pipex.c
+SRC = pipex.c command_handler.c pipex_utils.c
 
 NAME = pipex
 
