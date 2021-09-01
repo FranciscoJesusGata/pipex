@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/07/13 13:27:14 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/07/24 13:32:18 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,30 @@ t_command	*ft_tokenizer(int argc, char **argv)
 
 void	ft_parser(t_pipex *pipex)
 {
-	int	in_fd;
-	int	out_fd;
+	int			in_fd;
+	int			out_fd;
+	int			save;
+	t_command	*current;
 
+	save = dup(1);
 	in_fd = open(pipex->infile, O_RDONLY);
-	//Search binary
+	redirect(pipex->infile, in_fd, 0, pipex);
 	out_fd = open(pipex->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0622);
+	redirect(pipex->outfile, out_fd, 1, pipex);
+	dup2(save, 1);
+	close(out_fd);
+	current = pipex->commands;
+	while (current)
+	{
+		current->path = get_binary_path(pipex->path, current->binary);
+		if (!current->path)
+		{
+			finish_program(pipex);
+			exit(program_error(current->binary, 127, "command not found"));
+		}
+		printf("%s: %s\n", current->binary, current->path);
+		current = current->next;
+	}
 }
 
 void	initialize(t_pipex *pipex, int argc, char **argv, char **envp)
@@ -101,20 +119,17 @@ void	initialize(t_pipex *pipex, int argc, char **argv, char **envp)
 
 int	main(int argc, char **argv, char *envp[])
 {
-	int			i;
 	t_pipex		pipex;
 	int			status;
 
-	i = 0;
 	status = 0;
 	if (argc == 5)
 	{
 		initialize(&pipex, argc, argv, envp);
-		//redirect(argv[1], open(argv[1], O_RDONLY), 0);
+		ft_parser(&pipex);
 		finish_program(&pipex);
 	}
 	else
 		status = program_error("pipex", 1, "Invalid number of arguments");
-	system("leaks pipex");
 	return (status);
 }
