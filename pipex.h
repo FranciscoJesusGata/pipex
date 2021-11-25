@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:45:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/07/12 13:06:28 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/11/25 11:23:51 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,10 @@
 
 typedef struct s_command
 {
-	char			*binary;
-	char			**args;
+	char			**argv;
+	int				argc;
 	char			*path;
-	int				input;
-	int				output;
+	int				fds[2];
 	struct s_command	*next;
 }				t_command;
 
@@ -33,8 +32,6 @@ typedef struct s_pipex
 {
 	char		**path;
 	t_command	*commands;
-	char		*infile;
-	char		*outfile;
 }				t_pipex;
 
 /*
@@ -42,6 +39,7 @@ typedef struct s_pipex
  */
 t_command	*new_command(char *cmd);
 void	delete_cmd_lst(t_command *commands);
+void	cmd_printer(t_command *commands);
 
 /*
  * Util functions
