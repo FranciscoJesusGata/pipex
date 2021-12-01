@@ -6,7 +6,7 @@
 #    By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/23 15:56:31 by fgata-va          #+#    #+#              #
-#    Updated: 2021/11/26 16:22:40 by fgata-va         ###   ########.fr        #
+#    Updated: 2021/12/01 20:13:50 by fgata-va         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,9 @@ LIBFT = -LLibft -lft
 OBJS := $(SRC:.c=.o)
 
 all: $(NAME)
+
+bonus: CFLAGS += -D BONUS=1
+bonus: all
 
 $(NAME): libft $(OBJS)
 	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)

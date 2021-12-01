@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/01 18:55:32 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/01 19:52:22 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int	main(int argc, char **argv, char *envp[])
 
 	i = 0;
 	status = 0;
-	if (argc == 5)
+	if ((BONUS && argc >= 5) || argc == 5)
 	{
 		initialize(&pipex, argc, argv, envp);
 		pipe_connect(pipex.commands);
