@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
+/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 21:02:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/07/13 12:39:41 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/01 18:55:58 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	program_error(char *name, int code, char *message)
 	else
 		ft_putstr_fd(message, 2);
 	write(2, "\n", 1);
-	return(code);
+	return (code);
 }
 
 char	*path_concat(char *path, char *binary)
@@ -64,8 +64,13 @@ char	*path_concat(char *path, char *binary)
 
 char	**get_path(char **envp)
 {
-	while (ft_strncmp(*envp, "PATH", 4))
+	while (*envp && ft_strncmp(*envp, "PATH", 4))
 		envp++;
 	return (ft_split(*envp + 5, ':'));
 }
 
+void	finish_program(t_pipex *pipex)
+{
+	delete_cmd_lst(pipex->commands);
+	free_matrix(pipex->path);
+}

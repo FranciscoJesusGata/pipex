@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
+/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:45:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/11/25 11:23:51 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/01 18:45:49 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,13 @@
 
 typedef struct s_command
 {
-	char			**argv;
-	int				argc;
-	char			*path;
-	int				fds[2];
+	char				**argv;
+	int					argc;
+	int					fds[2];
+	int					*prev;
+	pid_t				pid;
 	struct s_command	*next;
-}				t_command;
+}						t_command;
 
 typedef struct s_pipex
 {
@@ -38,15 +39,21 @@ typedef struct s_pipex
  * Linked list functions
  */
 t_command	*new_command(char *cmd);
-void	delete_cmd_lst(t_command *commands);
-void	cmd_printer(t_command *commands);
+void		delete_cmd_lst(t_command *commands);
+void		cmd_printer(t_command *commands);
 
 /*
  * Util functions
  */
-void	free_matrix(char **matrix);
-int		program_error(char *name, int code, char *message);
-char	*path_concat(char *path, char *binary);
-char	**get_path(char **envp);
+void		free_matrix(char **matrix);
+int			program_error(char *name, int code, char *message);
+char		*path_concat(char *path, char *binary);
+char		**get_path(char **envp);
+void		finish_program(t_pipex *pipex);
+
+/*
+** Executor functions
+*/
+int			executer(t_command **commands, char **path, char **envp);
 
 #endif

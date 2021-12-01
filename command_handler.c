@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   command_handler.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fgata-va <fgata-va@student.42madrid>       +#+  +:+       +#+        */
+/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/25 17:25:24 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/11/25 15:11:18 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/01 18:54:58 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,27 +23,23 @@ t_command	*new_command(char *cmd)
 		return (NULL);
 	new->argv = ft_split(cmd, ' ');
 	new->argc = ft_strlen((void *)new->argv);
-	new->path = NULL;
 	new->fds[0] = -1;
 	new->fds[1] = -1;
+	new->prev = NULL;
 	new->next = NULL;
 	return (new);
 }
 
 void	delete_cmd_lst(t_command *commands)
 {
-	t_command *nxt;
+	t_command	*nxt;
 
 	while (commands)
 	{
 		nxt = commands->next;
-		if (commands->fds[0] >= 0)
-			close(commands->fds[0]);
-		if (commands->fds[1] >= 0)
-			close(commands->fds[1]);
+		close(commands->fds[0]);
+		close(commands->fds[1]);
 		free_matrix(commands->argv);
-		if (commands->path)
-			free(commands->path);
 		free(commands);
 		commands = nxt;
 	}
@@ -71,8 +67,13 @@ void	cmd_printer(t_command *commands)
 	{
 		write(1, "cmd", 3);
 		ft_putnbr_fd(i, 1);
-		write(1, ":\n" ,2);
+		write(1, ":\n", 2);
 		argv_printer(commands->argv);
+		ft_putstr_fd("fds: ", 1);
+		ft_putnbr_fd(commands->fds[0], 1);
+		write(1, " ", 1);
+		ft_putnbr_fd(commands->fds[1], 1);
+		write(1, "\n", 1);
 		commands = commands->next;
 		i++;
 	}
