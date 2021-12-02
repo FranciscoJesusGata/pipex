@@ -6,25 +6,31 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/01 19:52:22 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/02 16:30:46 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include <stdio.h>
 
-int	open_fds(char *infile, char *outfile, t_command *commands)
+int	open_fds(char *infile, char *outfile, int is_heredoc, t_command *commands)
 {
 	int	readfile;
 	int	writefile;
 
-	readfile = open(infile, O_RDONLY);
+	if (BONUS && is_heredoc)
+		readfile = heredoc(infile);
+	else
+		readfile = open(infile, O_RDONLY);
 	if (readfile < 0)
 		return (program_error(infile, 1, NULL));
 	if (commands->fds[0] >= 0)
 		close(commands->fds[0]);
 	commands->fds[0] = readfile;
-	writefile = open(outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (BONUS && is_heredoc)
+		writefile = open(outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
+	else
+		writefile = open(outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	if (writefile < 0)
 		return (program_error(outfile, 1, NULL));
 	while (commands->next)
@@ -59,15 +65,23 @@ t_command	*ft_tokenizer(int argc, char **argv)
 	return (commands);
 }
 
-void	initialize(t_pipex *pipex, int argc, char **argv, char **envp)
+void	initialize(t_pipex *pipex, int *argc, char ***argv, char **envp)
 {
-	pipex->commands = ft_tokenizer(argc, argv);
 	pipex->path = get_path(envp);
+	if (BONUS && !ft_strncmp("heredoc", (*argv)[1], ft_strlen((*argv)[1])))
+	{
+		pipex->heredoc = 1;
+		(*argv)++;
+		(*argc)--;
+	}
+	else
+		pipex->heredoc = 0;
 	if (!pipex->path)
 	{
 		finish_program(pipex);
 		exit(1);
 	}
+	pipex->commands = ft_tokenizer(*argc, *argv);
 }
 
 void	pipe_connect(t_command *commands)
@@ -79,24 +93,22 @@ void	pipe_connect(t_command *commands)
 		pipe(fds);
 		commands->fds[1] = fds[1];
 		commands->next->fds[0] = fds[0];
-		commands->next->prev = commands->fds;
 		commands = commands->next;
 	}
 }
 
 int	main(int argc, char **argv, char *envp[])
 {
-	int			i;
 	t_pipex		pipex;
 	int			status;
 
-	i = 0;
 	status = 0;
 	if ((BONUS && argc >= 5) || argc == 5)
 	{
-		initialize(&pipex, argc, argv, envp);
+		initialize(&pipex, &argc, &argv, envp);
 		pipe_connect(pipex.commands);
-		status = open_fds(argv[1], argv[argc - 1], pipex.commands);
+		status = open_fds(argv[1], argv[argc - 1], pipex.heredoc,
+				pipex.commands);
 		if (!status)
 			status = executer(&pipex.commands, pipex.path, envp);
 		else
@@ -105,7 +117,5 @@ int	main(int argc, char **argv, char *envp[])
 	}
 	else
 		status = program_error("pipex", 1, "Invalid number of arguments");
-	system("leaks pipex");
-	system("lsof -c pipex");
 	return (status);
 }

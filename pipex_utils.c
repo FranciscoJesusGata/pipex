@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 21:02:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/01 18:55:58 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/02 16:04:57 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,6 @@ void	finish_program(t_pipex *pipex)
 {
 	delete_cmd_lst(pipex->commands);
 	free_matrix(pipex->path);
+	if (pipex->heredoc)
+		unlink("/tmp/heredoc");
 }
