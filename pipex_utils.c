@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 21:02:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/02 16:04:57 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/02 17:34:52 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int	program_error(char *name, int code, char *message)
 		ft_putstr_fd(strerror(errno), 2);
 	else
 		ft_putstr_fd(message, 2);
-	write(2, "\n", 1);
+	write(2, "\n", 2);
 	return (code);
 }
 
