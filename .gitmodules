@@ -1,3 +1,6 @@
 [submodule "Libft"]
 	path = Libft
 	url = git@github.com:FranciscoJesusGata/Libft.git
+[submodule "42_file-reader"]
+	path = 42_file-reader
+	url = git@github.com:FranciscoJesusGata/42_file-reader.git
