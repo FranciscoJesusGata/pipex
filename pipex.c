@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/02 18:41:49 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/03 11:01:01 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,15 @@ void	open_fds(char *infile, char *outfile, int is_heredoc,
 		readfile = heredoc(infile);
 	else
 		readfile = open(infile, O_RDONLY);
-	if (commands->fds[0] >= 0)
-		close(commands->fds[0]);
-	commands->fds[0] = readfile;
 	if (BONUS && is_heredoc)
 		writefile = open(outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
 	else
 		writefile = open(outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (writefile < 0 || readfile < 0)
+		program_error(infile, 1, NULL);
+	if (commands->fds[0] >= 0)
+		close(commands->fds[0]);
+	commands->fds[0] = readfile;
 	while (commands->next)
 		commands = commands->next;
 	if (commands->fds[1] >= 0)
@@ -89,6 +91,7 @@ void	pipe_connect(t_command *commands)
 		pipe(fds);
 		commands->fds[1] = fds[1];
 		commands->next->fds[0] = fds[0];
+		commands->next->prev = commands->fds;
 		commands = commands->next;
 	}
 }

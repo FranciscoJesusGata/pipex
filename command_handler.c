@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/25 17:25:24 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/02 16:24:27 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/03 10:52:31 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ t_command	*new_command(char *cmd)
 	new->argc = ft_strlen((void *)new->argv);
 	new->fds[0] = -1;
 	new->fds[1] = -1;
+	new->prev = NULL;
 	new->next = NULL;
 	return (new);
 }

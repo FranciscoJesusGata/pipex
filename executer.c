@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 15:38:07 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/02 18:23:43 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/03 12:07:48 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,16 @@ char	*get_binary_path(char **path, char *binary)
 	return (exec_path);
 }
 
-void	redirect(int fds[2])
+void	redirect(t_command *current)
 {
-	if ((dup2(fds[0], STDIN_FILENO)) < 0)
+	if (current->next)
+		close(current->next->fds[0]);
+	if ((dup2(current->fds[0], STDIN_FILENO)) < 0)
 		exit(program_error("pipex", 1, NULL));
-	close(fds[0]);
-	if ((dup2(fds[1], STDOUT_FILENO)) < 0)
+	close(current->fds[0]);
+	if ((dup2(current->fds[1], STDOUT_FILENO)) < 0)
 		exit(program_error("pipex", 1, NULL));
-	close(fds[1]);
+	close(current->fds[1]);
 }
 
 char	*find_binary(char *name, char **path)
@@ -54,6 +56,8 @@ char	*find_binary(char *name, char **path)
 	char	*path_to_bin;
 
 	path_to_bin = NULL;
+	if (!ft_strncmp("exit", name, ft_strlen(name)))
+		return (name);
 	if (ft_strchr(name, '/'))
 	{
 		if ((access(name, X_OK)) < 0)
@@ -75,7 +79,7 @@ void	launch_processes(t_command *commands, char **path, char **envp)
 		pid = fork();
 		if (!pid)
 		{
-			redirect(commands->fds);
+			redirect(commands);
 			execve(find_binary(commands->argv[0], path), commands->argv, envp);
 		}
 		close(commands->fds[0]);
