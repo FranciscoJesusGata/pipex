@@ -6,7 +6,7 @@
 #    By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/23 15:56:31 by fgata-va          #+#    #+#              #
-#    Updated: 2021/12/06 11:11:47 by fgata-va         ###   ########.fr        #
+#    Updated: 2021/12/06 18:42:15 by fgata-va         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,9 +28,6 @@ all: $(NAME)
 
 bonus: CFLAGS += -D BONUS=1
 bonus: all
-
-echo:
-	echo $(OBJS)
 
 %.o: $(GNLDIR)/%.c
 	$(CC) $(CFLAGS)   -c -o $@ $<

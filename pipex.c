@@ -6,12 +6,11 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/16 10:41:58 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/03 11:01:01 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/06 19:01:43 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include <stdio.h>
 
 void	open_fds(char *infile, char *outfile, int is_heredoc,
 		t_command *commands)
@@ -27,7 +26,9 @@ void	open_fds(char *infile, char *outfile, int is_heredoc,
 		writefile = open(outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
 	else
 		writefile = open(outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (writefile < 0 || readfile < 0)
+	if (writefile < 0)
+		program_error(outfile, 1, NULL);
+	if (readfile < 0)
 		program_error(infile, 1, NULL);
 	if (commands->fds[0] >= 0)
 		close(commands->fds[0]);
@@ -74,11 +75,6 @@ void	initialize(t_pipex *pipex, int *argc, char ***argv, char **envp)
 	}
 	else
 		pipex->heredoc = 0;
-	if (!pipex->path)
-	{
-		finish_program(pipex);
-		exit(1);
-	}
 	pipex->commands = ft_tokenizer(*argc, *argv);
 }
 

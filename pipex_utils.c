@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 21:02:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2021/12/02 17:34:52 by fgata-va         ###   ########.fr       */
+/*   Updated: 2021/12/06 18:41:55 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,19 @@ char	*path_concat(char *path, char *binary)
 
 char	**get_path(char **envp)
 {
+	char	**path;
+
 	while (*envp && ft_strncmp(*envp, "PATH", 4))
 		envp++;
-	return (ft_split(*envp + 5, ':'));
+	if (*envp)
+	{
+		path = ft_split(*envp + 5, ':');
+		if (!path)
+			exit(program_error("pipe", 1, "Allocation error"));
+		return (path);
+	}
+	else
+		return (NULL);
 }
 
 void	finish_program(t_pipex *pipex)
