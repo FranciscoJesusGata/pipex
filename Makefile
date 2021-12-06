@@ -6,7 +6,7 @@
 #    By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/23 15:56:31 by fgata-va          #+#    #+#              #
-#    Updated: 2021/12/02 18:45:36 by fgata-va         ###   ########.fr        #
+#    Updated: 2021/12/06 11:11:47 by fgata-va         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,9 @@ SRC := pipex.c command_handler.c pipex_utils.c executer.c heredoc.c get_next_lin
 
 NAME := pipex
 
-LIBFT = -LLibft -lft
+ADDLIB := -LLibft -lft
+
+LIBFT := Libft/.git
 
 OBJS := $(SRC:.c=.o)
 
@@ -33,10 +35,15 @@ echo:
 %.o: $(GNLDIR)/%.c
 	$(CC) $(CFLAGS)   -c -o $@ $<
 
-$(NAME): libft $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) $(GNL_OBJS) $(LIBFT) -o $(NAME)
+$(LIBFT):
+	git submodule update --init $(@D)
 
-libft:
+Libft/%: | $(LIBFT)
+
+$(NAME): libft $(OBJS)
+	@$(CC) $(CFLAGS) $(OBJS) $(GNL_OBJS) $(ADDLIB) -o $(NAME)
+
+libft: $(LIBFT)
 	$(MAKE) -C Libft/
 
 clean:
